@@ -3,7 +3,7 @@ function setup() {
   document.getElementById("sketch-title").innerText = title;
   window.document.title = title;
 
-  createCanvas(800, 600);
+  createCanvas(640, 640);
 }
 
 function draw() {
