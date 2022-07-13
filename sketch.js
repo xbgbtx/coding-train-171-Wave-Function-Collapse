@@ -1,4 +1,8 @@
 function setup() {
+  const title = "171 - Wave Function Collapse";
+  document.getElementById("sketch-title").innerText = title;
+  window.document.title = title;
+
   createCanvas(800, 600);
 }
 
