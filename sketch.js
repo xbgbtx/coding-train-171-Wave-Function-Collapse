@@ -1,16 +1,81 @@
+const tiles = [];
+const width = 720;
+const height = 720;
+const tileSize = 36;
+const tilesX = width / tileSize;
+const tilesY = height / tileSize;
+
+const Tile = {
+  UNDECIDED: 0,
+  BLANK: 1,
+  UP: 2,
+  RIGHT: 3,
+  DOWN: 4,
+  LEFT: 5,
+};
+
+function indexFromCoords(x, y) {
+  return tilesX * y + x;
+}
+
+function coordsFromIndex(i) {
+  return {
+    x: i % tilesX,
+    y: floor(i / tilesX),
+  };
+}
+
+class Cell {
+  constructor(index) {
+    this.index = index;
+    this.possibilities = [
+      Tile.BLANK,
+      Tile.UP,
+      Tile.RIGHT,
+      Tile.DOWN,
+      Tile.LEFT,
+    ];
+  }
+
+  getTile() {
+    if (this.possibilities.length != 1) return Tile.UNDECIDED;
+    return this.possibilities[0];
+  }
+}
+
+let state = [];
+
+function preload() {
+  tiles[Tile.UNDECIDED] = loadImage("tiles/undecided.png");
+  tiles[Tile.BLANK] = loadImage("tiles/blank.png");
+  tiles[Tile.UP] = loadImage("tiles/up.png");
+  tiles[Tile.RIGHT] = loadImage("tiles/right.png");
+  tiles[Tile.DOWN] = loadImage("tiles/down.png");
+  tiles[Tile.LEFT] = loadImage("tiles/left.png");
+}
+
 function setup() {
   const title = "171 - Wave Function Collapse";
   document.getElementById("sketch-title").innerText = title;
   window.document.title = title;
 
-  createCanvas(640, 640);
+  createCanvas(720, 720);
+  initState();
 }
 
 function draw() {
-  if (mouseIsPressed) {
-    fill(0);
-  } else {
-    fill(255);
+  for (let i = 0; i < state.length; i++) {
+    const t = state[i].getTile();
+    const cellCoords = coordsFromIndex(i);
+    const x = cellCoords.x * tileSize;
+    const y = cellCoords.y * tileSize;
+    image(tiles[t], x, y, tileSize, tileSize);
   }
-  ellipse(mouseX, mouseY, 80, 80);
+  noLoop();
+}
+
+function initState() {
+  for (let i = 0; i < tilesX * tilesY; i++) {
+    state.push(new Cell(i));
+  }
 }
