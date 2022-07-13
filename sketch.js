@@ -5,6 +5,8 @@ const tileSize = 36;
 const tilesX = width / tileSize;
 const tilesY = height / tileSize;
 
+let grid;
+
 const Tile = {
   UNDECIDED: 0,
   BLANK: 1,
@@ -41,9 +43,51 @@ class Cell {
     if (this.possibilities.length != 1) return Tile.UNDECIDED;
     return this.possibilities[0];
   }
+
+  entropy() {
+    return this.possibilities.length;
+  }
+
+  removePossibility(p) {
+    this.possibilities = this.possibilities.filter((i) => i != p);
+  }
 }
 
-let state = [];
+class WFCGrid {
+  constructor() {
+    this.cells = [];
+
+    for (let i = 0; i < tilesX * tilesY; i++) {
+      const cell = new Cell(i);
+      this.cells.push(cell);
+    }
+  }
+
+  getNumCells() {
+    return this.cells.length;
+  }
+
+  getCellAtIndex(i) {
+    return this.cells[i];
+  }
+
+  removePossibility(index, p) {
+    let cell = this.cells[index];
+    cell.removePossibility(p);
+  }
+
+  getLowestEntropy() {
+    return this.cells.reduce((curr, next) => {
+      let nextE = next.entropy();
+      return nextE < curr ? nextE : curr;
+    }, 999999);
+  }
+
+  getLowestEntropyCells() {
+    let e = this.getLowestEntropy();
+    return this.cells.filter((i) => i.entropy() == e);
+  }
+}
 
 function preload() {
   tiles[Tile.UNDECIDED] = loadImage("tiles/undecided.png");
@@ -60,22 +104,21 @@ function setup() {
   window.document.title = title;
 
   createCanvas(720, 720);
-  initState();
+  grid = new WFCGrid();
+
+  //Test collapse first cell
+  grid.removePossibility(3, Tile.UP);
+  console.log(grid.getLowestEntropy());
+  console.log(grid.getLowestEntropyCells());
 }
 
 function draw() {
-  for (let i = 0; i < state.length; i++) {
-    const t = state[i].getTile();
+  for (let i = 0; i < grid.getNumCells(); i++) {
+    const t = grid.getCellAtIndex(i).getTile();
     const cellCoords = coordsFromIndex(i);
     const x = cellCoords.x * tileSize;
     const y = cellCoords.y * tileSize;
     image(tiles[t], x, y, tileSize, tileSize);
   }
   noLoop();
-}
-
-function initState() {
-  for (let i = 0; i < tilesX * tilesY; i++) {
-    state.push(new Cell(i));
-  }
 }
