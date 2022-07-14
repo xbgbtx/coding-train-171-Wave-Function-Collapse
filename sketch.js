@@ -124,6 +124,7 @@ class WFCGrid {
     const c = random(candidates);
 
     this.cells[c].collapse();
+    this.open = this.open.filter((i) => i !== c);
     return true;
   }
 }
@@ -148,7 +149,7 @@ function setup() {
 }
 
 function draw() {
-  // const status = grid.collapseNext();
+  const status = grid.collapseNext();
 
   for (let i = 0; i < grid.getNumCells(); i++) {
     const t = grid.getCellAtIndex(i).getTile();
@@ -158,6 +159,5 @@ function draw() {
     image(t.image, x, y, tileSize, tileSize);
   }
 
-  noLoop();
-  // if (status == false) noLoop();
+  if (status == false) noLoop();
 }
