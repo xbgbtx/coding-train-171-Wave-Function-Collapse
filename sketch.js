@@ -108,8 +108,6 @@ function setup() {
 
   //Test collapse first cell
   grid.removePossibility(3, Tile.UP);
-  console.log(grid.getLowestEntropy());
-  console.log(grid.getLowestEntropyCells());
 }
 
 function draw() {
