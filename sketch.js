@@ -39,8 +39,7 @@ function coordsFromIndex(i) {
 }
 
 class Cell {
-  constructor(index) {
-    this.index = index;
+  constructor() {
     this.possibilities = [
       Tile.BLANK,
       Tile.UP,
@@ -74,7 +73,7 @@ class WFCGrid {
     this.cells = [];
 
     for (let i = 0; i < tilesX * tilesY; i++) {
-      const cell = new Cell(i);
+      const cell = new Cell();
       this.cells.push(cell);
     }
 
@@ -94,17 +93,13 @@ class WFCGrid {
     cell.removePossibility(p);
   }
 
-  getOpenCells() {
-    return this.cells.filter((val, idx) => this.open.includes(idx));
-  }
-
-  getEntropyMap(cellSet) {
-    return cellSet.reduce((entropyMap, cell) => {
-      const e = cell.entropy();
+  getEntropyMap(cellIndexes) {
+    return cellIndexes.reduce((entropyMap, cellIdx) => {
+      const e = this.cells[cellIdx].entropy();
 
       entropyMap.has(e)
-        ? entropyMap.get(e).push(cell)
-        : entropyMap.set(e, [cell]);
+        ? entropyMap.get(e).push(cellIdx)
+        : entropyMap.set(e, [cellIdx]);
 
       return entropyMap;
     }, new Map());
@@ -113,21 +108,22 @@ class WFCGrid {
   collapseNext() {
     if (this.open.length <= 0) return false;
 
-    const entropyMap = this.getEntropyMap(this.getOpenCells());
+    const entropyMap = this.getEntropyMap(this.open);
 
     const sortedEntropyKeys = Array.from(entropyMap.keys())
       .filter((k) => k > 1)
       .sort((k1, k2) => k1 - k2);
+
+    if (sortedEntropyKeys.size < 1) return false;
 
     const lowestEntropy = sortedEntropyKeys[0];
 
     if (lowestEntropy <= 1) return false;
 
     const candidates = entropyMap.get(lowestEntropy);
-    console.log(candidates[0]);
     const c = random(candidates);
 
-    c.collapse();
+    this.cells[c].collapse();
     return true;
   }
 }
@@ -148,6 +144,7 @@ function setup() {
 
   createCanvas(720, 720);
   grid = new WFCGrid();
+  grid.collapseNext();
 }
 
 function draw() {
