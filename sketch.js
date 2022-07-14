@@ -1,4 +1,3 @@
-const tiles = [];
 const width = 720;
 const height = 720;
 const tileSize = 36;
@@ -8,12 +7,24 @@ const tilesY = height / tileSize;
 let grid;
 
 const Tile = {
-  UNDECIDED: 0,
-  BLANK: 1,
-  UP: 2,
-  RIGHT: 3,
-  DOWN: 4,
-  LEFT: 5,
+  UNDECIDED: {
+    image: null,
+  },
+  BLANK: {
+    image: null,
+  },
+  UP: {
+    image: null,
+  },
+  RIGHT: {
+    image: null,
+  },
+  DOWN: {
+    image: null,
+  },
+  LEFT: {
+    image: null,
+  },
 };
 
 function indexFromCoords(x, y) {
@@ -114,12 +125,12 @@ class WFCGrid {
 }
 
 function preload() {
-  tiles[Tile.UNDECIDED] = loadImage("tiles/undecided.png");
-  tiles[Tile.BLANK] = loadImage("tiles/blank.png");
-  tiles[Tile.UP] = loadImage("tiles/up.png");
-  tiles[Tile.RIGHT] = loadImage("tiles/right.png");
-  tiles[Tile.DOWN] = loadImage("tiles/down.png");
-  tiles[Tile.LEFT] = loadImage("tiles/left.png");
+  Tile[Tile.UNDECIDED].image = loadImage("tiles/undecided.png");
+  Tile[Tile.BLANK].image = loadImage("tiles/blank.png");
+  Tile[Tile.UP].image = loadImage("tiles/up.png");
+  Tile[Tile.RIGHT].image = loadImage("tiles/right.png");
+  Tile[Tile.DOWN].image = loadImage("tiles/down.png");
+  Tile[Tile.LEFT].image = loadImage("tiles/left.png");
 }
 
 function setup() {
@@ -142,7 +153,7 @@ function draw() {
     const cellCoords = coordsFromIndex(i);
     const x = cellCoords.x * tileSize;
     const y = cellCoords.y * tileSize;
-    image(tiles[t], x, y, tileSize, tileSize);
+    image(Tile[t].image, x, y, tileSize, tileSize);
   }
 
   if (status == false) noLoop();
