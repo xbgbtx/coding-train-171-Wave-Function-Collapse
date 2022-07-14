@@ -77,6 +77,8 @@ class WFCGrid {
       const cell = new Cell(i);
       this.cells.push(cell);
     }
+
+    this.open = [floor(random(this.cells.length))];
   }
 
   getNumCells() {
@@ -92,8 +94,12 @@ class WFCGrid {
     cell.removePossibility(p);
   }
 
-  getEntropyMap() {
-    return this.cells.reduce((entropyMap, cell) => {
+  getOpenCells() {
+    return this.cells.filter((val, idx) => this.open.includes(idx));
+  }
+
+  getEntropyMap(cellSet) {
+    return cellSet.reduce((entropyMap, cell) => {
       const e = cell.entropy();
 
       entropyMap.has(e)
@@ -105,7 +111,9 @@ class WFCGrid {
   }
 
   collapseNext() {
-    const entropyMap = this.getEntropyMap();
+    if (this.open.length <= 0) return false;
+
+    const entropyMap = this.getEntropyMap(this.getOpenCells());
 
     const sortedEntropyKeys = Array.from(entropyMap.keys())
       .filter((k) => k > 1)
@@ -125,12 +133,12 @@ class WFCGrid {
 }
 
 function preload() {
-  Tile[Tile.UNDECIDED].image = loadImage("tiles/undecided.png");
-  Tile[Tile.BLANK].image = loadImage("tiles/blank.png");
-  Tile[Tile.UP].image = loadImage("tiles/up.png");
-  Tile[Tile.RIGHT].image = loadImage("tiles/right.png");
-  Tile[Tile.DOWN].image = loadImage("tiles/down.png");
-  Tile[Tile.LEFT].image = loadImage("tiles/left.png");
+  Tile.UNDECIDED.image = loadImage("tiles/undecided.png");
+  Tile.BLANK.image = loadImage("tiles/blank.png");
+  Tile.UP.image = loadImage("tiles/up.png");
+  Tile.RIGHT.image = loadImage("tiles/right.png");
+  Tile.DOWN.image = loadImage("tiles/down.png");
+  Tile.LEFT.image = loadImage("tiles/left.png");
 }
 
 function setup() {
@@ -140,21 +148,19 @@ function setup() {
 
   createCanvas(720, 720);
   grid = new WFCGrid();
-
-  //Test collapse first cell
-  grid.collapseNext();
 }
 
 function draw() {
-  const status = grid.collapseNext();
+  // const status = grid.collapseNext();
 
   for (let i = 0; i < grid.getNumCells(); i++) {
     const t = grid.getCellAtIndex(i).getTile();
     const cellCoords = coordsFromIndex(i);
     const x = cellCoords.x * tileSize;
     const y = cellCoords.y * tileSize;
-    image(Tile[t].image, x, y, tileSize, tileSize);
+    image(t.image, x, y, tileSize, tileSize);
   }
 
-  if (status == false) noLoop();
+  noLoop();
+  // if (status == false) noLoop();
 }
