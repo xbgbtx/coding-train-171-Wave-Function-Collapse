@@ -51,6 +51,11 @@ class Cell {
   removePossibility(p) {
     this.possibilities = this.possibilities.filter((i) => i != p);
   }
+
+  collapse() {
+    const c = random(this.possibilities);
+    this.possibilities = [c];
+  }
 }
 
 class WFCGrid {
@@ -76,16 +81,35 @@ class WFCGrid {
     cell.removePossibility(p);
   }
 
-  getLowestEntropy() {
-    return this.cells.reduce((curr, next) => {
-      let nextE = next.entropy();
-      return nextE < curr ? nextE : curr;
-    }, 999999);
+  getEntropyMap() {
+    return this.cells.reduce((entropyMap, cell) => {
+      const e = cell.entropy();
+
+      entropyMap.has(e)
+        ? entropyMap.get(e).push(cell)
+        : entropyMap.set(e, [cell]);
+
+      return entropyMap;
+    }, new Map());
   }
 
-  getLowestEntropyCells() {
-    let e = this.getLowestEntropy();
-    return this.cells.filter((i) => i.entropy() == e);
+  collapseNext() {
+    const entropyMap = this.getEntropyMap();
+
+    const sortedEntropyKeys = Array.from(entropyMap.keys())
+      .filter((k) => k > 1)
+      .sort((k1, k2) => k1 - k2);
+
+    const lowestEntropy = sortedEntropyKeys[0];
+
+    if (lowestEntropy <= 1) return false;
+
+    const candidates = entropyMap.get(lowestEntropy);
+    console.log(candidates[0]);
+    const c = random(candidates);
+
+    c.collapse();
+    return true;
   }
 }
 
@@ -107,10 +131,12 @@ function setup() {
   grid = new WFCGrid();
 
   //Test collapse first cell
-  grid.removePossibility(3, Tile.UP);
+  grid.collapseNext();
 }
 
 function draw() {
+  const status = grid.collapseNext();
+
   for (let i = 0; i < grid.getNumCells(); i++) {
     const t = grid.getCellAtIndex(i).getTile();
     const cellCoords = coordsFromIndex(i);
@@ -118,5 +144,6 @@ function draw() {
     const y = cellCoords.y * tileSize;
     image(tiles[t], x, y, tileSize, tileSize);
   }
-  noLoop();
+
+  if (status == false) noLoop();
 }
