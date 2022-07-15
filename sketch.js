@@ -27,6 +27,15 @@ const Tile = {
   },
 };
 
+const neighbourhood = [
+  { x: 0, y: -1 },
+  { x: 1, y: 0 },
+  { x: 0, y: 1 },
+  { x: -1, y: 0 },
+];
+
+const invalidNeighbour = {};
+
 function indexFromCoords({ x, y }) {
   return tilesX * y + x;
 }
@@ -126,11 +135,13 @@ class WFCGrid {
     const candidates = entropyMap.get(lowestEntropy);
     const c = random(candidates);
 
-    this.cells[c].collapse();
+    const neighbours = this.neighbours(c);
+
+    this.cells[c].collapse(neighbours);
     this.open = this.open.filter((i) => i !== c);
 
-    const neighbours = this.neighbours(c).filter(
-      (x) => this.cells[x].entropy() > 1
+    const nextOpen = neighbours.filter(
+      (x) => x !== invalidNeighbour && this.cells[x].entropy() > 1
     );
 
     this.open = this.open.concat(neighbours);
@@ -139,13 +150,6 @@ class WFCGrid {
   }
 
   neighbours(cellIdx) {
-    const neighbourhood = [
-      { x: 0, y: -1 },
-      { x: 1, y: 0 },
-      { x: 0, y: 1 },
-      { x: -1, y: 0 },
-    ];
-
     const cellCoords = coordsFromIndex(cellIdx);
 
     const cellNeighbourhood = neighbourhood
@@ -153,9 +157,9 @@ class WFCGrid {
         x: n.x + cellCoords.x,
         y: n.y + cellCoords.y,
       }))
-      .filter((c) => validCoords(c));
+      .map((n) => (validCoords(n) ? indexFromCoords(n) : invalidNeighbour));
 
-    return cellNeighbourhood.map((c) => indexFromCoords(c));
+    return cellNeighbourhood;
   }
 }
 
