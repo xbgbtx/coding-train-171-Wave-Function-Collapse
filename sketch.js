@@ -4,49 +4,39 @@ const tileSize = 36;
 const tilesX = width / tileSize;
 const tilesY = height / tileSize;
 
+const tileData = new Set();
+
 let grid;
 
-const Direction = {
+const Directions = {
   UP: 0,
   RIGHT: 1,
   DOWN: 2,
   LEFT: 3,
 };
 
-const Tile = {
-  UNDECIDED: {
-    imageRef: "tiles/undecided.png",
-    image: null,
-    validNeighbour: () => true,
-  },
-  BLANK: {
-    imageRef: "tiles/blank.png",
-    image: null,
-    validNeighbour: (dir, tile) => {
-      switch (dir) {
-        case Direction.UP:
-          return [Tile.UP].includes(tile);
-      }
-      return false;
-    },
-  },
-  UP: {
-    imageRef: "tiles/up.png",
-    image: null,
-  },
-  RIGHT: {
-    imageRef: "tiles/right.png",
-    image: null,
-  },
-  DOWN: {
-    imageRef: "tiles/down.png",
-    image: null,
-  },
-  LEFT: {
-    imageRef: "tiles/left.png",
-    image: null,
-  },
+const Tiles = {
+  UP: 0,
+  RIGHT: 1,
+  DOWN: 2,
+  LEFT: 3,
+  BLANK: 4,
+  UNDECIDED: 5,
 };
+
+class Tile {
+  constructor(imageRef, type, edgeVals) {
+    this.image = loadImage(imageRef);
+    this.type = type;
+    this.edgeVals = edgeVals;
+  }
+
+  validNeighbour(dir, tile) {
+    if (tile == Tiles.UNDECIDED) return true;
+
+    return this.validNeighbours[dir].has(tile);
+  }
+}
 
 const neighbourhood = [
   { x: 0, y: -1 },
@@ -74,11 +64,11 @@ function validCoords({ x, y }) {
 class Cell {
   constructor() {
     this.possibilities = [
-      Tile.BLANK,
-      Tile.UP,
-      Tile.RIGHT,
-      Tile.DOWN,
-      Tile.LEFT,
+      Tiles.BLANK,
+      Tiles.UP,
+      Tiles.RIGHT,
+      Tiles.DOWN,
+      Tiles.LEFT,
     ];
   }
 
@@ -185,9 +175,13 @@ class WFCGrid {
 }
 
 function preload() {
-  for (t in Tile) {
-    Tile[t].image = loadImage(Tile[t].imageRef);
-  }
+  tileData.add(new Tile("tiles/undecided.png", Tiles.UNDECIDED, null));
+  tileData.add(new Tile("tiles/up.png", Tiles.UP, [1, 1, 0, 1]));
+  tileData.add(new Tile("tiles/right.png", Tiles.RIGHT, [1, 1, 1, 0]));
+
+  tileData.add(new Tile("tiles/down.png", Tiles.DOWN, [0, 1, 1, 1]));
+  tileData.add(new Tile("tiles/left.png", Tiles.LEFT, [1, 0, 1, 1]));
+  tileData.add(new Tile("tiles/blank.png", TILES.BLANK, [0, 0, 0, 0]));
 }
 
 function setup() {
