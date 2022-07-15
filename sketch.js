@@ -6,14 +6,29 @@ const tilesY = height / tileSize;
 
 let grid;
 
+const Direction = {
+  UP: 0,
+  RIGHT: 1,
+  DOWN: 2,
+  LEFT: 3,
+};
+
 const Tile = {
   UNDECIDED: {
     imageRef: "tiles/undecided.png",
     image: null,
+    validNeighbour: () => true,
   },
   BLANK: {
     imageRef: "tiles/blank.png",
     image: null,
+    validNeighbour: (dir, tile) => {
+      switch (dir) {
+        case Direction.UP:
+          return [Tile.UP].includes(tile);
+      }
+      return false;
+    },
   },
   UP: {
     imageRef: "tiles/up.png",
