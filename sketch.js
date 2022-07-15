@@ -27,7 +27,7 @@ const Tile = {
   },
 };
 
-function indexFromCoords(x, y) {
+function indexFromCoords({ x, y }) {
   return tilesX * y + x;
 }
 
@@ -36,6 +36,9 @@ function coordsFromIndex(i) {
     x: i % tilesX,
     y: floor(i / tilesX),
   };
+}
+function validCoords({ x, y }) {
+  return x >= 0 && x < tilesX && y >= 0 && y < tilesY;
 }
 
 class Cell {
@@ -125,7 +128,34 @@ class WFCGrid {
 
     this.cells[c].collapse();
     this.open = this.open.filter((i) => i !== c);
+
+    const neighbours = this.neighbours(c).filter(
+      (x) => this.cells[x].entropy() > 1
+    );
+
+    this.open = this.open.concat(neighbours);
+
     return true;
+  }
+
+  neighbours(cellIdx) {
+    const neighbourhood = [
+      { x: 0, y: -1 },
+      { x: 1, y: 0 },
+      { x: 0, y: 1 },
+      { x: -1, y: 0 },
+    ];
+
+    const cellCoords = coordsFromIndex(cellIdx);
+
+    const cellNeighbourhood = neighbourhood
+      .map((n) => ({
+        x: n.x + cellCoords.x,
+        y: n.y + cellCoords.y,
+      }))
+      .filter((c) => validCoords(c));
+
+    return cellNeighbourhood.map((c) => indexFromCoords(c));
   }
 }
 
