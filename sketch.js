@@ -8,21 +8,27 @@ let grid;
 
 const Tile = {
   UNDECIDED: {
+    imageRef: "tiles/undecided.png",
     image: null,
   },
   BLANK: {
+    imageRef: "tiles/blank.png",
     image: null,
   },
   UP: {
+    imageRef: "tiles/up.png",
     image: null,
   },
   RIGHT: {
+    imageRef: "tiles/right.png",
     image: null,
   },
   DOWN: {
+    imageRef: "tiles/down.png",
     image: null,
   },
   LEFT: {
+    imageRef: "tiles/left.png",
     image: null,
   },
 };
@@ -144,7 +150,7 @@ class WFCGrid {
       (x) => x !== invalidNeighbour && this.cells[x].entropy() > 1
     );
 
-    this.open = this.open.concat(neighbours);
+    this.open = this.open.concat(nextOpen);
 
     return true;
   }
@@ -164,12 +170,9 @@ class WFCGrid {
 }
 
 function preload() {
-  Tile.UNDECIDED.image = loadImage("tiles/undecided.png");
-  Tile.BLANK.image = loadImage("tiles/blank.png");
-  Tile.UP.image = loadImage("tiles/up.png");
-  Tile.RIGHT.image = loadImage("tiles/right.png");
-  Tile.DOWN.image = loadImage("tiles/down.png");
-  Tile.LEFT.image = loadImage("tiles/left.png");
+  for (t in Tile) {
+    Tile[t].image = loadImage(Tile[t].imageRef);
+  }
 }
 
 function setup() {
