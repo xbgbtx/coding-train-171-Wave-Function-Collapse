@@ -5,6 +5,7 @@ const tilesX = width / tileSize;
 const tilesY = height / tileSize;
 
 const tileData = new Set();
+let undecidedTile;
 
 let grid;
 
@@ -32,7 +33,7 @@ class Tile {
   }
 
   validNeighbour(dir, tile) {
-    if (tile == Tiles.UNDECIDED) return true;
+    if (tile == undecidedTile) return true;
 
     return this.validNeighbours[dir].has(tile);
   }
@@ -63,18 +64,13 @@ function validCoords({ x, y }) {
 
 class Cell {
   constructor() {
-    this.possibilities = [
-      Tiles.BLANK,
-      Tiles.UP,
-      Tiles.RIGHT,
-      Tiles.DOWN,
-      Tiles.LEFT,
-    ];
+    this.possibilities = new Set(tileData);
+    this.tile = undefined;
   }
 
   getTile() {
-    if (this.possibilities.length != 1) return Tile.UNDECIDED;
-    return this.possibilities[0];
+    if (this.possibilities.size > 1) return undecidedTile;
+    return tile;
   }
 
   entropy() {
@@ -175,13 +171,12 @@ class WFCGrid {
 }
 
 function preload() {
-  tileData.add(new Tile("tiles/undecided.png", Tiles.UNDECIDED, null));
+  let undecidedTile = new Tile("tiles/undecided.png", Tiles.UNDECIDED, null);
   tileData.add(new Tile("tiles/up.png", Tiles.UP, [1, 1, 0, 1]));
   tileData.add(new Tile("tiles/right.png", Tiles.RIGHT, [1, 1, 1, 0]));
-
   tileData.add(new Tile("tiles/down.png", Tiles.DOWN, [0, 1, 1, 1]));
   tileData.add(new Tile("tiles/left.png", Tiles.LEFT, [1, 0, 1, 1]));
-  tileData.add(new Tile("tiles/blank.png", TILES.BLANK, [0, 0, 0, 0]));
+  tileData.add(new Tile("tiles/blank.png", Tiles.BLANK, [0, 0, 0, 0]));
 }
 
 function setup() {
@@ -191,7 +186,7 @@ function setup() {
 
   createCanvas(720, 720);
   grid = new WFCGrid();
-  grid.collapseNext();
+  //grid.collapseNext();
 }
 
 function draw() {
