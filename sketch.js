@@ -2,12 +2,18 @@ let tileData;
 let tileGrid;
 
 const tileTypes = {
-  UNDECIDED: 0,
+  UP: 0,
+  RIGHT: 1,
+  DOWN: 2,
+  LEFT: 3,
+  BLANK: 4,
+  UNDECIDED: 5,
 };
 
 class Tile {
-  constructor(imageRef) {
+  constructor(imageRef, edges) {
     this.image = loadImage(imageRef);
+    this.edges;
   }
 }
 
@@ -42,7 +48,12 @@ class TileGrid {
 
 function preload() {
   tileData = new Map();
-  tileData.set(tileTypes.UNDECIDED, new Tile("tiles/undecided.png"));
+  tileData.set(tileTypes.UP, new Tile("tiles/up.png"), [1, 1, 0, 1]);
+  tileData.set(tileTypes.RIGHT, new Tile("tiles/right.png"), [1, 1, 1, 0]);
+  tileData.set(tileTypes.DOWN, new Tile("tiles/undecided.png"), [0, 1, 1, 1]);
+  tileData.set(tileTypes.LEFT, new Tile("tiles/undecided.png"), [1, 0, 1, 1]);
+  tileData.set(tileTypes.BLANK, new Tile("tiles/undecided.png"), [0, 0, 0, 0]);
+  tileData.set(tileTypes.UNDECIDED, new Tile("tiles/undecided.png"), []);
 }
 
 function setup() {
