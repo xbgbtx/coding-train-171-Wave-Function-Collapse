@@ -165,6 +165,9 @@ class WFC {
     }
 
     const arrayPoissbleTypes = Array.from(possibleTypes);
+
+    if (arrayPoissbleTypes.length == 0) return tileTypes.UNDECIDED;
+
     return arrayPoissbleTypes[floor(random() * arrayPoissbleTypes.length)];
   }
 }
