@@ -59,13 +59,21 @@ class WFC {
   }
 
   collapseNext() {
-    const next = this.open[floor(random(this.open.length))];
+    const next = this.popRandomOpen();
 
     const newType = this.types[floor(random(this.types.length))];
 
     const newTile = tileData.get(newType);
 
     tileGrid.setTile(next, newTile);
+  }
+
+  popRandomOpen() {
+    const r = this.open[floor(random(this.open.length))];
+
+    this.open = this.open.filter((x) => x !== r);
+
+    return r;
   }
 }
 
