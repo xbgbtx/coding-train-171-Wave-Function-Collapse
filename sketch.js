@@ -18,6 +18,19 @@ const directions = {
   LEFT: { x: -1, y: 0 },
 };
 
+function oppositDirection(d) {
+  switch (d) {
+    case "UP":
+      return "DOWN";
+    case "RIGHT":
+      return "LEFT";
+    case "DOWN":
+      return "UP";
+    case "LEFT":
+      return "RIGHT";
+  }
+}
+
 class Tile {
   constructor(imageRef, edges) {
     this.image = loadImage(imageRef);
