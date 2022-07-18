@@ -32,9 +32,10 @@ function oppositDirection(d) {
 }
 
 class Tile {
-  constructor(imageRef, edges) {
+  constructor(type, imageRef, edges) {
+    this.type = type;
     this.image = loadImage(imageRef);
-    this.edges;
+    this.edges = edges;
   }
 }
 
@@ -112,13 +113,11 @@ class WFC {
   collapseNext() {
     const next = this.popRandomOpen();
 
-    const newType = this.types[floor(random(this.types.length))];
-
-    const newTile = tileData.get(newType);
-
-    tileGrid.setTile(next, newTile);
-
     const neighbours = tileGrid.getAllNeighbours(next);
+
+    const newType = this.collapse(next);
+    const newTile = tileData.get(newType);
+    tileGrid.setTile(next, newTile);
 
     for (const n of neighbours) {
       if (n === null) continue;
@@ -137,41 +136,90 @@ class WFC {
 
     return r;
   }
+
+  collapse(idx) {
+    const possibleTypes = new Set(this.types);
+
+    for (const t of possibleTypes) {
+      for (const d in directions) {
+        //edge value for this tile
+        const tEdge = tileData.get(t).edges[d];
+
+        const directionOffset = directions[d];
+        const neighbourIdx = tileGrid.getNeighbour(idx, directionOffset);
+
+        if (neighbourIdx === null) continue;
+
+        const neighbourType = tileGrid.tiles[neighbourIdx].type;
+
+        if (neighbourType == tileTypes.UNDECIDED) continue;
+
+        const neighbourEdge =
+          tileData.get(neighbourType).edges[directions[oppositDirection(d)]];
+
+        if (tEdge !== neighbourEdge) {
+          possibleTypes.delete(t);
+          break;
+        }
+      }
+    }
+
+    return [...possibleTypes][floor(random() * possibleTypes.size)];
+  }
 }
 
 function preload() {
   tileData = new Map();
-  tileData.set(tileTypes.UP, new Tile("tiles/up.png"), {
-    UP: 1,
-    RIGHT: 1,
-    DOWN: 0,
-    LEFT: 1,
-  });
-  tileData.set(tileTypes.RIGHT, new Tile("tiles/right.png"), {
-    UP: 1,
-    RIGHT: 1,
-    DOWN: 1,
-    LEFT: 0,
-  });
-  tileData.set(tileTypes.DOWN, new Tile("tiles/down.png"), {
-    UP: 0,
-    RIGHT: 1,
-    DOWN: 1,
-    LEFT: 1,
-  });
-  tileData.set(tileTypes.LEFT, new Tile("tiles/left.png"), {
-    UP: 1,
-    RIGHT: 0,
-    DOWN: 1,
-    LEFT: 1,
-  });
-  tileData.set(tileTypes.BLANK, new Tile("tiles/blank.png"), {
-    UP: 0,
-    RIGHT: 0,
-    DOWN: 0,
-    LEFT: 0,
-  });
-  tileData.set(tileTypes.UNDECIDED, new Tile("tiles/undecided.png"), []);
+  tileData.set(
+    tileTypes.UP,
+    new Tile(tileTypes.UP, "tiles/up.png", {
+      UP: 1,
+      RIGHT: 1,
+      DOWN: 0,
+      LEFT: 1,
+    })
+  );
+  tileData.set(
+    tileTypes.RIGHT,
+    new Tile(tileTypes.RIGHT, "tiles/right.png", {
+      UP: 1,
+      RIGHT: 1,
+      DOWN: 1,
+      LEFT: 0,
+    })
+  );
+  tileData.set(
+    tileTypes.DOWN,
+    new Tile(tileTypes.DOWN, "tiles/down.png", {
+      UP: 0,
+      RIGHT: 1,
+      DOWN: 1,
+      LEFT: 1,
+    })
+  );
+  tileData.set(
+    tileTypes.LEFT,
+    new Tile(tileTypes.LEFT, "tiles/left.png", {
+      UP: 1,
+      RIGHT: 0,
+      DOWN: 1,
+      LEFT: 1,
+    })
+  );
+  tileData.set(
+    tileTypes.BLANK,
+    new Tile(tileTypes.BLANK, "tiles/blank.png", {
+      UP: 0,
+      RIGHT: 0,
+      DOWN: 0,
+      LEFT: 0,
+    })
+  );
+  tileData.set(
+    tileTypes.UNDECIDED,
+    new Tile(tileTypes.UNDECIDED, "tiles/undecided.png"),
+    []
+  );
 }
 
 function setup() {
