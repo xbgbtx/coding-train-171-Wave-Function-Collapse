@@ -11,6 +11,13 @@ const tileTypes = {
   UNDECIDED: 5,
 };
 
+const directions = {
+  UP: { x: 0, y: -1 },
+  RIGHT: { x: 1, y: 0 },
+  DOWN: { x: 0, y: 1 },
+  LEFT: { x: -1, y: 0 },
+};
+
 class Tile {
   constructor(imageRef, edges) {
     this.image = loadImage(imageRef);
@@ -48,6 +55,27 @@ class TileGrid {
 
   setTile(idx, tile) {
     this.tiles[idx] = tile;
+  }
+
+  idxToCoord(idx) {
+    return { x: idx % this.w, y: floor(idx / this.w) };
+  }
+
+  coordToIdx({ x, y }) {
+    return y * width + x;
+  }
+
+  validCoord({ x, y }) {
+    return x >= 0 && x < this.w && y >= 0 && y < this.h;
+  }
+
+  getNeighbour(idx, { x, y }) {
+    const c = this.idxToCoord(idx);
+    const n = { x: c.x + x, y: c.y + y };
+
+    if (!this.validCoord(n)) return null;
+
+    return this.coordToIdx(n);
   }
 }
 
@@ -107,5 +135,6 @@ function setup() {
 function draw() {
   wfc.collapseNext();
   tileGrid.draw();
-  noLoop();
+
+  if (wfc.open.length <= 0) noLoop();
 }
