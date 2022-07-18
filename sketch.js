@@ -141,11 +141,36 @@ class WFC {
 
 function preload() {
   tileData = new Map();
-  tileData.set(tileTypes.UP, new Tile("tiles/up.png"), [1, 1, 0, 1]);
-  tileData.set(tileTypes.RIGHT, new Tile("tiles/right.png"), [1, 1, 1, 0]);
-  tileData.set(tileTypes.DOWN, new Tile("tiles/down.png"), [0, 1, 1, 1]);
-  tileData.set(tileTypes.LEFT, new Tile("tiles/left.png"), [1, 0, 1, 1]);
-  tileData.set(tileTypes.BLANK, new Tile("tiles/blank.png"), [0, 0, 0, 0]);
+  tileData.set(tileTypes.UP, new Tile("tiles/up.png"), {
+    UP: 1,
+    RIGHT: 1,
+    DOWN: 0,
+    LEFT: 1,
+  });
+  tileData.set(tileTypes.RIGHT, new Tile("tiles/right.png"), {
+    UP: 1,
+    RIGHT: 1,
+    DOWN: 1,
+    LEFT: 0,
+  });
+  tileData.set(tileTypes.DOWN, new Tile("tiles/down.png"), {
+    UP: 0,
+    RIGHT: 1,
+    DOWN: 1,
+    LEFT: 1,
+  });
+  tileData.set(tileTypes.LEFT, new Tile("tiles/left.png"), {
+    UP: 1,
+    RIGHT: 0,
+    DOWN: 1,
+    LEFT: 1,
+  });
+  tileData.set(tileTypes.BLANK, new Tile("tiles/blank.png"), {
+    UP: 0,
+    RIGHT: 0,
+    DOWN: 0,
+    LEFT: 0,
+  });
   tileData.set(tileTypes.UNDECIDED, new Tile("tiles/undecided.png"), []);
 }
 
