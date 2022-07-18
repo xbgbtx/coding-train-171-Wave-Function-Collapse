@@ -154,8 +154,8 @@ class WFC {
 
         if (neighbourType == tileTypes.UNDECIDED) continue;
 
-        const neighbourEdge =
-          tileData.get(neighbourType).edges[directions[oppositDirection(d)]];
+        const neighbourOpp = oppositDirection(d);
+        const neighbourEdge = tileData.get(neighbourType).edges[neighbourOpp];
 
         if (tEdge !== neighbourEdge) {
           possibleTypes.delete(t);
@@ -164,7 +164,8 @@ class WFC {
       }
     }
 
-    return [...possibleTypes][floor(random() * possibleTypes.size)];
+    const arrayPoissbleTypes = Array.from(possibleTypes);
+    return arrayPoissbleTypes[floor(random() * arrayPoissbleTypes.length)];
   }
 }
 
