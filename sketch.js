@@ -62,7 +62,7 @@ class TileGrid {
   }
 
   coordToIdx({ x, y }) {
-    return y * width + x;
+    return y * this.w + x;
   }
 
   validCoord({ x, y }) {
@@ -77,6 +77,15 @@ class TileGrid {
 
     return this.coordToIdx(n);
   }
+
+  getAllNeighbours(idx) {
+    const neighbours = [];
+    for (const d in directions) {
+      const n = this.getNeighbour(idx, directions[d]);
+      neighbours.push(n);
+    }
+    return neighbours;
+  }
 }
 
 class WFC {
@@ -84,6 +93,7 @@ class WFC {
     this.open = [initialOpen];
     this.types = types;
     this.undecided = undecided;
+    this.collapsed = new Set();
   }
 
   collapseNext() {
@@ -94,6 +104,17 @@ class WFC {
     const newTile = tileData.get(newType);
 
     tileGrid.setTile(next, newTile);
+
+    const neighbours = tileGrid.getAllNeighbours(next);
+
+    for (const n of neighbours) {
+      if (n === null) continue;
+      if (this.collapsed.has(n)) continue;
+
+      this.open.push(n);
+    }
+
+    this.collapsed.add(next);
   }
 
   popRandomOpen() {
