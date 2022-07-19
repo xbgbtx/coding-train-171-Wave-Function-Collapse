@@ -23,7 +23,7 @@ class TileGrid {
   constructor(w, h) {
     this.w = w;
     this.h = h;
-    this.tiles = new GridBuffer(w, h, tileTypes.UNDECIDED);
+    this.tiles = new GridBuffer(w, h, () => tileTypes.UNDECIDED);
   }
 
   tileSize() {
