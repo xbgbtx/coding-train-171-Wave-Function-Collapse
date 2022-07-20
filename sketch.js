@@ -40,47 +40,53 @@ class TileGrid {
     }
   }
 
-  setTile(idx, tile) {
-    this.tiles[idx] = tile;
+  setTile(idx, value) {
+    this.tiles.setValueByIdx(idx, value);
   }
 }
 
 class WFC {
-  constructor(initialOpen, types, undecided) {
-    this.open = [initialOpen];
-    this.types = types;
-    this.undecided = undecided;
-    this.collapsed = new Set();
+  constructor(w, h, types) {
+    this.cells = new GridBuffer(w, h, () => new Set(types));
   }
 
   collapseNext() {
-    const next = this.popRandomOpen();
+    const entropyMap = this.createEntropyMap();
 
-    const neighbours = tileGrid.tiles.getAllNeighbours(next);
-
-    const newType = this.collapse(next);
-    const newTile = tileData.get(newType);
-    tileGrid.setTile(next, newTile);
-
-    for (const n of neighbours) {
-      if (n === null) continue;
-      if (this.collapsed.has(n)) continue;
-
-      this.open.push(n);
+    if (entropyMap.size == 0) {
+      return { idx: -1, value: null };
     }
 
-    this.collapsed.add(next);
+    const lowestEntropy = [...entropyMap.keys()].sort()[0];
+
+    const lowestEntropySet = entropyMap.get(lowestEntropy);
+
+    const i = [...lowestEntropySet][floor(random(lowestEntropySet.length))];
+
+    const cell = this.cells.getValueByIdx(i);
+
+    const val = [...cell][floor(random(cell.size))];
+
+    cell.clear();
+    cell.add(val);
+
+    return { idx: i, value: val };
   }
 
-  popRandomOpen() {
-    const r = this.open[floor(random(this.open.length))];
+  createEntropyMap() {
+    const m = new Map();
 
-    this.open = this.open.filter((x) => x !== r);
+    for (const i of this.cells) {
+      const e = i.cellValue.size;
+      const idx = i.index;
 
-    return r;
+      if (e == 1) continue;
+
+      m.has(e) ? m.set(e, [...m.get(e), idx]) : m.set(e, [idx]);
+    }
+
+    return m;
   }
-
-  collapse(idx) {}
 }
 
 function preload() {
@@ -139,24 +145,25 @@ function preload() {
 
 function setup() {
   createCanvas(720, 720);
-  tileGrid = new TileGrid(10, 10);
-  wfc = new WFC(
-    0,
-    [
-      tileTypes.UP,
-      tileTypes.RIGHT,
-      tileTypes.DOWN,
-      tileTypes.LEFT,
-      tileTypes.UP,
-      tileTypes.BLANK,
-    ],
-    tileTypes.UNDECIDED
-  );
+  const w = 10;
+  const h = 10;
+  tileGrid = new TileGrid(w, h);
+  wfc = new WFC(w, h, [
+    tileTypes.UP,
+    tileTypes.RIGHT,
+    tileTypes.DOWN,
+    tileTypes.LEFT,
+    tileTypes.UP,
+    tileTypes.BLANK,
+  ]);
 }
 
 function draw() {
-  //wfc.collapseNext();
+  const change = wfc.collapseNext();
+
+  tileGrid.setTile(change.idx, change.value);
+
   tileGrid.draw();
 
-  if (wfc.open.length <= 0) noLoop();
+  noLoop();
 }
