@@ -23,34 +23,10 @@ class Tile {
   }
 }
 
-class TileGrid {
-  constructor(w, h) {
-    this.w = w;
-    this.h = h;
-    this.tiles = new GridBuffer(w, h, () => tileTypes.UNDECIDED);
-  }
-
-  tileSize() {
-    return { x: width / this.w, y: height / this.h };
-  }
-
-  draw() {
-    for (let { cellValue, coords } of this.tiles) {
-      const ts = this.tileSize();
-      const x = coords.x * ts.x;
-      const y = coords.y * ts.y;
-      const tImg = tileData.get(cellValue).image;
-      image(tImg, x, y, ts.x, ts.y);
-    }
-  }
-
-  setTile(idx, value) {
-    this.tiles.setValueByIdx(idx, value);
-  }
-}
-
 class WFC {
   constructor(w, h, types) {
+    this.w = w;
+    this.h = h;
     this.cells = new GridBuffer(w, h, () => new Set(types));
   }
 
@@ -73,8 +49,6 @@ class WFC {
 
     cell.clear();
     cell.add(val);
-
-    return { idx: i, value: val };
   }
 
   propagation(idx) {
@@ -108,6 +82,21 @@ class WFC {
     }
 
     return m;
+  }
+
+  draw() {
+    const ts = { x: width / this.w, y: height / this.h };
+    for (let { cellValue, coords } of this.cells) {
+      const possibleTypes = cellValue;
+      const x = coords.x * ts.x;
+      const y = coords.y * ts.y;
+
+      for (const t of possibleTypes) {
+        const tImg = tileData.get(t).image;
+        tint(255, 255 / possibleTypes.size);
+        image(tImg, x, y, ts.x, ts.y);
+      }
+    }
   }
 }
 
@@ -169,7 +158,6 @@ function setup() {
   createCanvas(720, 720);
   const w = 10;
   const h = 10;
-  tileGrid = new TileGrid(w, h);
   wfc = new WFC(w, h, [
     tileTypes.UP,
     tileTypes.RIGHT,
@@ -181,11 +169,9 @@ function setup() {
 }
 
 function draw() {
-  const change = wfc.collapseNext();
+  wfc.collapseNext();
 
-  tileGrid.setTile(change.idx, change.value);
-
-  tileGrid.draw();
+  wfc.draw();
 
   noLoop();
 }
