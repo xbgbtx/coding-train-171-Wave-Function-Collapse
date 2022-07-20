@@ -17,6 +17,10 @@ class Tile {
     this.image = loadImage(imageRef);
     this.edges = edges;
   }
+
+  matches(direction, value) {
+    return this.edges[direction] == value;
+  }
 }
 
 class TileGrid {
@@ -71,6 +75,24 @@ class WFC {
     cell.add(val);
 
     return { idx: i, value: val };
+  }
+
+  propagation(idx) {
+    const open = [idx];
+    const closed = new Set();
+
+    while (open.length > 0) {
+      const curr = open.pop();
+
+      if (closed.has(curr)) continue;
+      closed.add(curr);
+
+      const neighbours = this.cells
+        .getAllNeighbours(curr)
+        .filter((x) => !closed.has(x));
+
+      open = open.concat(neighbours);
+    }
   }
 
   createEntropyMap() {
