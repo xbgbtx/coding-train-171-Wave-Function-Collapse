@@ -50,27 +50,31 @@ class WFC {
     cell.clear();
     cell.add(val);
 
-    //this.propagation(i);
+    this.propagation(i);
   }
 
   propagation(idx) {
-    let open = [idx];
-    const closed = new Set();
+    let open = this.cells.getAllNeighbours(idx).filter((n) => n !== null);
 
     while (open.length > 0) {
-      const curr = this.cells.getValueByIdx(open.pop());
+      const curr = open.pop();
 
-      const neighbours = this.cells
-        .getAllNeighbours(curr)
-        .filter((x) => !closed.has(x));
+      const possibleTiles = this.cells.getValueByIdx(curr);
 
-      open = open.concat(neighbours);
+      for (const t of possibleTiles) {
+        for (const d in directions) {
+          const edge = t.edges[d];
 
-      for (const n in neighbours) {
+          const nIdx = this.cells.getNeighbour(directions[d]);
+
+          const n = this.cells.getValueByIdx(nIdx);
+
+          if (!n.matches(oppositeDirection(d), edge)) {
+            possibleTiles.delete(t);
+            open.push(nIdx);
+          }
+        }
       }
-
-      if (closed.has(curr)) continue;
-      closed.add(curr);
     }
   }
 
