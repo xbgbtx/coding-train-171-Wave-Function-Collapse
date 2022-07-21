@@ -49,23 +49,28 @@ class WFC {
 
     cell.clear();
     cell.add(val);
+
+    //this.propagation(i);
   }
 
   propagation(idx) {
-    const open = [idx];
+    let open = [idx];
     const closed = new Set();
 
     while (open.length > 0) {
-      const curr = open.pop();
-
-      if (closed.has(curr)) continue;
-      closed.add(curr);
+      const curr = this.cells.getValueByIdx(open.pop());
 
       const neighbours = this.cells
         .getAllNeighbours(curr)
         .filter((x) => !closed.has(x));
 
       open = open.concat(neighbours);
+
+      for (const n in neighbours) {
+      }
+
+      if (closed.has(curr)) continue;
+      closed.add(curr);
     }
   }
 
