@@ -33,9 +33,7 @@ class WFC {
   collapseNext() {
     const entropyMap = this.createEntropyMap();
 
-    if (entropyMap.size == 0) {
-      return { idx: -1, value: null };
-    }
+    if (entropyMap.size == 0) return false;
 
     const lowestEntropy = [...entropyMap.keys()].sort()[0];
 
@@ -51,6 +49,8 @@ class WFC {
     cell.add(val);
 
     this.propagation(i);
+
+    return true;
   }
 
   propagation(idx) {
@@ -59,7 +59,11 @@ class WFC {
     while (open.length > 0) {
       const curr = open.pop();
 
+      open = open.filter((i) => i != curr);
+
       const possibleTiles = this.cells.getValueByIdx(curr);
+
+      if (possibleTiles.size == 1) continue;
 
       for (const t of possibleTiles) {
         for (const d in directions) {
@@ -82,7 +86,10 @@ class WFC {
 
           if (!validMatch) {
             possibleTiles.delete(t);
-            open.push(nIdx);
+
+            open = open.concat(
+              this.cells.getAllNeighbours(idx).filter((n) => n !== null)
+            );
           }
         }
       }
@@ -177,10 +184,8 @@ function setup() {
 }
 
 function draw() {
-  noLoop();
-}
-
-function mouseClicked() {
-  wfc.collapseNext();
+  let c = wfc.collapseNext();
   wfc.draw();
+
+  if (!c) noLoop();
 }
