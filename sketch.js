@@ -24,10 +24,10 @@ class Tile {
 }
 
 class WFC {
-  constructor(w, h, types) {
+  constructor(w, h) {
     this.w = w;
     this.h = h;
-    this.cells = new GridBuffer(w, h, () => new Set(types));
+    this.cells = new GridBuffer(w, h, () => new Set(tileData.values()));
   }
 
   collapseNext() {
@@ -92,13 +92,13 @@ class WFC {
   draw() {
     const ts = { x: width / this.w, y: height / this.h };
     for (let { cellValue, coords } of this.cells) {
-      const possibleTypes = cellValue;
+      const possibleTiles = cellValue;
       const x = coords.x * ts.x;
       const y = coords.y * ts.y;
 
-      for (const t of possibleTypes) {
-        const tImg = tileData.get(t).image;
-        tint(255, 255 / possibleTypes.size);
+      for (const t of possibleTiles) {
+        const tImg = t.image;
+        tint(255, 255 / possibleTiles.size);
         image(tImg, x, y, ts.x, ts.y);
       }
     }
@@ -152,25 +152,13 @@ function preload() {
       LEFT: 0,
     })
   );
-  tileData.set(
-    tileTypes.UNDECIDED,
-    new Tile(tileTypes.UNDECIDED, "tiles/undecided.png"),
-    []
-  );
 }
 
 function setup() {
   createCanvas(720, 720);
   const w = 10;
   const h = 10;
-  wfc = new WFC(w, h, [
-    tileTypes.UP,
-    tileTypes.RIGHT,
-    tileTypes.DOWN,
-    tileTypes.LEFT,
-    tileTypes.UP,
-    tileTypes.BLANK,
-  ]);
+  wfc = new WFC(w, h);
 }
 
 function draw() {
