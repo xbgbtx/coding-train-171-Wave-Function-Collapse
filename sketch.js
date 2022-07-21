@@ -65,11 +65,22 @@ class WFC {
         for (const d in directions) {
           const edge = t.edges[d];
 
-          const nIdx = this.cells.getNeighbour(directions[d]);
+          const nIdx = this.cells.getNeighbour(curr, directions[d]);
+
+          if (nIdx === null) continue;
 
           const n = this.cells.getValueByIdx(nIdx);
 
-          if (!n.matches(oppositeDirection(d), edge)) {
+          let validMatch = false;
+
+          for (const nPossibility of n) {
+            if (nPossibility.matches(oppositeDirection(d), edge)) {
+              validMatch = true;
+              break;
+            }
+          }
+
+          if (!validMatch) {
             possibleTiles.delete(t);
             open.push(nIdx);
           }
@@ -166,9 +177,10 @@ function setup() {
 }
 
 function draw() {
-  wfc.collapseNext();
-
-  wfc.draw();
-
   noLoop();
+}
+
+function mouseClicked() {
+  wfc.collapseNext();
+  wfc.draw();
 }
